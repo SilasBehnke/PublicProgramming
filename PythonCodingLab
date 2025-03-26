@@ -1,0 +1,119 @@
+#imports go here
+import pandas as pd 
+
+#tbh this feels so extra, but wth its here so i guess we can use it
+genecode = {'ATA':'Isoleucine', 'ATC':'Isoleucine', 'ATT':'Isoleucine', 'ATG':'Methionine',
+  'ACA':'Threonine', 'ACC':'Threonine', 'ACG':'Threonine', 'ACT':'Threonine',
+  'AAC':'Asparagine', 'AAT':'Asparagine', 'AAA':'Lysine', 'AAG':'Lysine',
+  'AGC':'Serine', 'AGT':'Serine', 'AGA':'Arginine', 'AGG':'Arginine',
+  'CTA':'Leucine', 'CTC':'Leucine', 'CTG':'Leucine', 'CTT':'Leucine',
+  'CCA':'Proline', 'CCC':'Proline', 'CCG':'Proline', 'CCT':'Proline',
+  'CAC':'Histidine', 'CAT':'Histidine', 'CAA':'Glutamine', 'CAG':'Glutamine',
+  'CGA':'Arginine', 'CGC':'Arginine', 'CGG':'Arginine', 'CGT':'Arginine',
+  'GTA':'Valine', 'GTC':'Valine', 'GTG':'Valine', 'GTT':'Valine',
+  'GCA':'Alanine', 'GCC':'Alanine', 'GCG':'Alanine', 'GCT':'Alanine',
+  'GAC':'Aspartic Acid', 'GAT':'Aspartic Acid', 'GAA':'Glutamic Acid', 'GAG':'Glutamic Acid','GGA':'Glycine', 'GGC':'Glycine', 'GGG':'Glycine', 'GGT':'Glycine',
+  'TCA':'Serine', 'TCC':'Serine', 'TCG':'S', 'TCT':'Serine',
+  'TTC':'Phenylalanine', 'TTT':'Phenylalanine', 'TTA':'Leucine', 'TTG':'Leucine',
+  'TAC':'Tyrosine', 'TAT':'Tyrosine', 'TAA':'STOP', 'TAG':'STOP',
+  'TGC':'Cysteine', 'TGT':'Cysteine', 'TGA':'STOP', 'TGG':'Tryptophan'}      
+
+#okay so story time, this whole thing could be way easier 
+#if they just like *gave* us the genetic sequences in a 
+#better format, but they didn't so our lives are just that much harder
+#
+#anyways we have to basically splice the liens into a usable format
+#without rows and columns (aka get rid of the .csv format)
+
+
+# Open the files ------------------------------------------>
+HBB = open("Hemoglobin.csv", 'r') 
+J = open("jackie.csv", 'r')
+
+# Read the files ------------------------------------------>
+HBB= HBB.read()
+HBB=''.join(HBB.splitlines()) #join the line into one string. 
+#The '' tells the interpreter to use an empty string as the thing to join the lines together with.
+
+J= J.read()
+J=''.join(J.splitlines())
+
+print('The files are successfully inserted into this code!','\n') #unnecessary, but helps debug the code ¯\_(ツ)_/¯
+
+# Find Mutations ------------------------------------------>
+nt_pos = 0 #init var
+for nt_pos in range(0,len(HBB)): # go through the whole sequence and check each nucleotide for mutations. 
+  if HBB[nt_pos] != J[nt_pos]:
+    mutatedPos = nt_pos #save for use later
+    print("Mutated position: " + str(nt_pos) + "\t Mutation: " + HBB[nt_pos] + " -> " + J[nt_pos] + "\n") #output to console
+    nt_pos += 1 #go to the next nucleotide in the sequence
+    
+# Convert nucleotide triads into codons ---------------------------------------------->
+# Because I wanted to reference a list instead of going through each nucleotide individually.
+# sorry not sorry for this one, but i didn't like the way the Edvotek did this part so i changed it. you get the same result tho
+
+HBBcodons = []
+nt_pos = 0
+for i in range(0, len(HBB)):
+  codon = HBB[i:i+3]
+  if len(codon) == 3:
+    HBBcodons.append(codon)
+
+Jcodons = []
+nt_pos = 0
+for i in range(0, len(HBB)):
+  codon = J[i:i+3]
+  if len(codon) == 3:
+    Jcodons.append(codon)
+  
+
+# Convert Codons to Amino Acids and Find Mutation ---------------------------------------------->
+HBBass = [] #a list for the amino acids in HBB
+Jass = [] #a list for the amino acids in J
+for i in range(0,len(HBBcodons)):
+  HBBass.append(genecode[HBBcodons[i]])
+  Jass.append(genecode[Jcodons[i]])
+  #print (str(i) + "\t" + HBBass[i] +"\t"+ Jass[i]) #Used to debug
+
+  if HBBass[i] != Jass[i]:
+    print("Mutation: " + HBBass[i] + " -> " + Jass[i] + " at residue: " + str(i) + "\n") #output to console
+
+# Count Nucleotides ---------------------------------------------->
+HBB_ATGC_count = [0,0,0,0]
+for i in range(0,len(HBB)):
+  if HBB[i] == 'A':
+    HBB_ATGC_count[0] += 1
+
+  elif HBB[i] == 'T':
+    HBB_ATGC_count[1] += 1
+
+  elif HBB[i] == 'G':
+    HBB_ATGC_count[2] += 1
+
+  else: 
+    HBB_ATGC_count[3] += 1
+
+J_ATGC_count = [0,0,0,0]
+for i in range(0,len(J)):
+  if J[i] == 'A':
+    J_ATGC_count[0] += 1
+
+  elif J[i] == 'T':
+    J_ATGC_count[1] += 1
+
+  elif J[i] == 'G':
+    J_ATGC_count[2] += 1
+
+  else: 
+    J_ATGC_count[3] += 1
+    
+# Output Nucleotide Counts ---------------------------------------------->
+
+data = {
+  "Nucleotide": ["A", "T", "G", "C"],
+  "Reference Count": HBB_ATGC_count,
+  "Jackie Count": J_ATGC_count
+}
+df = pd.DataFrame(data)
+
+print(df)
