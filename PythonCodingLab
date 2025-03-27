@@ -68,7 +68,7 @@ for i in range(0, len(HBB)):
   
 
 # Convert Codons to Amino Acids and Find Mutation ---------------------------------------------->
-HBBass = [] #a list for the amino acids in HBB
+HBBass = [] #a list for the amino acids in HBB (was gonna be HBB_aas for amino acids but ass is funnier lol)
 Jass = [] #a list for the amino acids in J
 for i in range(0,len(HBBcodons)):
   HBBass.append(genecode[HBBcodons[i]])
@@ -117,3 +117,5 @@ data = {
 df = pd.DataFrame(data)
 
 print(df)
+
+#tada we done
